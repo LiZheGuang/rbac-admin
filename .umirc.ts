@@ -29,7 +29,17 @@ export default defineConfig({
       path: '/table',
       component: './Table',
     },
+    {
+      name: '登录',
+      path: '/login',
+      component: './Login',
+    },
+    {
+      name: '用户',
+      path: '/user',
+      component: '@/layouts/index',
+      routes: [{ path: 'list', component: './Users', name: '用户列表' }],
+    },
   ],
   npmClient: 'pnpm',
 });
-
