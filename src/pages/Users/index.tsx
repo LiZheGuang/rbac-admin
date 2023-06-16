@@ -1,9 +1,9 @@
 import { EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { ProTable, TableDropdown } from '@ant-design/pro-components';
-import { Button, Dropdown, Space, Tag } from 'antd';
+import { ProTable } from '@ant-design/pro-components';
+import { Link, request } from '@umijs/max';
+import { Button, Dropdown } from 'antd';
 import { useRef } from 'react';
-import {request} from '@umijs/max';
 export const waitTimePromise = async (time: number = 100) => {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -39,10 +39,12 @@ const columns: ProColumns<GithubIssueItem>[] = [
     width: 48,
   },
   {
-    title: '标题',
-    dataIndex: 'title',
+    title: '用户id',
+    dataIndex: 'id',
     copyable: true,
     ellipsis: true,
+    key: 'id',
+
     tip: '标题过长会自动收缩',
     formItemProps: {
       rules: [
@@ -55,68 +57,64 @@ const columns: ProColumns<GithubIssueItem>[] = [
   },
   {
     disable: true,
-    title: '状态',
-    dataIndex: 'state',
+    title: 'uid',
+    dataIndex: 'uuid',
     filters: true,
     onFilter: true,
     ellipsis: true,
-    valueType: 'select',
-    valueEnum: {
-      all: { text: '超长'.repeat(50) },
-      open: {
-        text: '未解决',
-        status: 'Error',
-      },
-      closed: {
-        text: '已解决',
-        status: 'Success',
-        disabled: true,
-      },
-      processing: {
-        text: '解决中',
-        status: 'Processing',
-      },
-    },
   },
   {
     disable: true,
-    title: '标签',
-    dataIndex: 'labels',
-    search: false,
-    renderFormItem: (_, { defaultRender }) => {
-      return defaultRender(_);
-    },
-    render: (_, record) => (
-      <Space>
-        {record.labels.map(({ name, color }) => (
-          <Tag color={color} key={name}>
-            {name}
-          </Tag>
-        ))}
-      </Space>
-    ),
+    title: '用户昵称',
+    dataIndex: 'username',
+    filters: true,
+    onFilter: true,
+    ellipsis: true,
+    hideInSearch: true,
   },
+  {
+    disable: true,
+    title: '用户身份',
+    dataIndex: 'role_name',
+    filters: true,
+    onFilter: true,
+    ellipsis: true,
+    hideInSearch: true,
+  },
+  // {
+  //   disable: true,
+  //   title: '标签',
+  //   dataIndex: 'labels',
+  //   search: false,
+  //   renderFormItem: (_, { defaultRender }) => {
+  //     return defaultRender(_);
+  //   },
+  //   render: (_, record) => (
+
+  //     // <Space>
+  //     //   {record.labels.map(({ name, color }) => (
+  //     //     <Tag color={color} key={name}>
+  //     //       {name}
+  //     //     </Tag>
+  //     //   ))}
+  //     // </Space>
+  //   ),
+  // },
   {
     title: '创建时间',
     key: 'showTime',
     dataIndex: 'created_at',
-    valueType: 'date',
+    valueType: 'dateTime',
     sorter: true,
     hideInSearch: true,
   },
   {
-    title: '创建时间',
-    dataIndex: 'created_at',
-    valueType: 'dateRange',
-    hideInTable: true,
-    search: {
-      transform: (value) => {
-        return {
-          startTime: value[0],
-          endTime: value[1],
-        };
-      },
-    },
+    title: '更新时间',
+    // key: 'showTime',
+    dataIndex: 'updated_at',
+    valueType: 'dateTime',
+    sorter: true,
+    hideInSearch: true,
   },
   {
     title: '操作',
@@ -131,17 +129,7 @@ const columns: ProColumns<GithubIssueItem>[] = [
       >
         编辑
       </a>,
-      <a href={record.url} target="_blank" rel="noopener noreferrer" key="view">
-        查看
-      </a>,
-      <TableDropdown
-        key="actionGroup"
-        onSelect={() => action?.reload()}
-        menus={[
-          { key: 'copy', name: '复制' },
-          { key: 'delete', name: '删除' },
-        ]}
-      />,
+      <Link key={record.id} to={'/user/detail/' + record.id}>查看</Link>,
     ],
   },
 ];
@@ -155,12 +143,19 @@ export default () => {
       cardBordered
       request={async (params = {}, sort, filter) => {
         console.log(sort, filter);
-        await waitTime(2000);
-        return request<{
+        // await waitTime(2000);
+        let resoponseBody = await request<{
           data: GithubIssueItem[];
-        }>('https://proapi.azurewebsites.net/github/issues', {
+        }>('http://localhost:8080/users/', {
           params,
         });
+        console.log(resoponseBody);
+        return {
+          data: resoponseBody as any,
+          success: true,
+          // 'total':30,
+          // 'page':1
+        };
       }}
       editable={{
         type: 'multiple',
@@ -194,7 +189,7 @@ export default () => {
         },
       }}
       pagination={{
-        pageSize: 5,
+        pageSize: 10,
         onChange: (page) => console.log(page),
       }}
       dateFormatter="string"

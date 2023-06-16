@@ -38,7 +38,15 @@ export default defineConfig({
       name: '用户',
       path: '/user',
       component: '@/layouts/index',
-      routes: [{ path: 'list', component: './Users', name: '用户列表' }],
+      routes: [
+        { path: 'list', component: './Users', name: '用户列表' },
+        { path: 'permission', component: './Users/permission', name: '权限系统' },
+        {
+          path: 'detail/:id',
+          component: './Users/detail.tsx',
+          name: '用户详情',
+        },
+      ],
     },
   ],
   npmClient: 'pnpm',
