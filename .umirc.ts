@@ -46,6 +46,17 @@ export default defineConfig({
           component: './Users/detail.tsx',
           name: '用户详情',
         },
+        {
+          path: 'role/:roleId',
+          component: './Users/roleDetail.tsx',
+          name: '身份详情修改',
+          hideInMenu: true,
+        },
+        {
+          path: 'addRole',
+          component: './Users/roleDetail.tsx',
+          name: '新建身份',
+        },
       ],
     },
   ],
